@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { DiagramComponent, SnapSettingsModel, LayoutModel, NodeModel, Diagram, ConnectorModel, DecoratorModel, StrokeStyleModel, DiagramTools, SnapConstraints, ComplexHierarchicalTree, DataBinding } from '@syncfusion/ej2-angular-diagrams';
 import { DataManager } from '@syncfusion/ej2-data';
 import { GraphLottiService } from '../services/graph-lotti.service';
-import { GraphNode, gg, graphData } from '../interfaces/nodes-definitions';
+import { GraphNode, graphData } from '../interfaces/nodes-definitions';
+import Data from '../diagram-data.json';
 
 Diagram.Inject(DataBinding, ComplexHierarchicalTree);
 
@@ -20,11 +21,14 @@ export class GraficoLottiComponent implements OnInit {
   @ViewChild('diagram')
   public diagram?: DiagramComponent;
   private graphData!: GraphNode[];
+  private graphDataJson!: string;
 
   constructor(protected graphService: GraphLottiService, protected cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    this.graphData = this.graphService.translateDataToGraph(graphData)
+    this.graphData = this.graphService.translateDataToGraph(graphData);
+    this.graphDataJson = this.graphService.makeJson(this.graphData);
+    console.log(this.graphDataJson)
   }
 
   public nodeDefaults(obj: NodeModel): NodeModel {
@@ -37,12 +41,12 @@ export class GraficoLottiComponent implements OnInit {
   public data: Object = {
     id: 'id',
     parentId: 'parent',
-    dataSource: new DataManager((gg as any).nodi),
-    //binds the external data with node
-    doBinding: (nodeModel: NodeModel, data: DataInfo, diagram: Diagram) => {
-      /* tslint:disable:no-string-literal */
-      nodeModel.style = { fill: "#e7704c", strokeWidth: 1, strokeColor: "#c15433" };
-    }
+    dataSource: new DataManager((this.graphDataJson as any)),
+      //binds the external data with node
+      doBinding: (nodeModel: NodeModel, data: DataInfo, diagram: Diagram) => {
+        /* tslint:disable:no-string-literal */
+        nodeModel.style = { fill: "#e7704c", strokeWidth: 1, strokeColor: "#c15433" };
+      }
   };
 
   public created(): void {
