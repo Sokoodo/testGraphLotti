@@ -10,7 +10,7 @@ export class LottiBkndService {
 
   constructor() { }
 
-  public getJsonFromLotto (lotto: string) {
-
+  public getJsonFromLotto(lotto: string) {
+    console.log(lotto)
   }
 }

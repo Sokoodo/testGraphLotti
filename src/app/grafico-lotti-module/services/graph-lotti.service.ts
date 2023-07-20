@@ -56,9 +56,4 @@ export class GraphLottiService {
     return true;
   }
 
-  makeJson(graphData: GraphNode[]): string {
-    return JSON.stringify(graphData);
-  }
-
-
 }

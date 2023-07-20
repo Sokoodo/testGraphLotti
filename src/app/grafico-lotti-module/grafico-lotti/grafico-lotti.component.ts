@@ -1,12 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { DiagramComponent, SnapSettingsModel, LayoutModel, NodeModel, Diagram, ConnectorModel, DecoratorModel, StrokeStyleModel, DiagramTools, SnapConstraints, ComplexHierarchicalTree, DataBinding } from '@syncfusion/ej2-angular-diagrams';
-import { DataManager } from '@syncfusion/ej2-data';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { DiagramComponent, SnapSettingsModel, LayoutModel, NodeModel, Diagram, ConnectorModel, DecoratorModel, StrokeStyleModel, DiagramTools, SnapConstraints, ComplexHierarchicalTree, DataBinding, DataSourceModel, DiagramConstraints } from '@syncfusion/ej2-angular-diagrams';
 import { GraphLottiService } from '../services/graph-lotti.service';
 import { GraphNode, graphData } from '../interfaces/nodes-definitions';
-import Data from '../diagram-data.json';
-
+import { DataManager } from '@syncfusion/ej2-data';
+import { FormControl, Validators } from '@angular/forms';
+import { LottiBkndService } from '../services/lotti-bknd.service';
 Diagram.Inject(DataBinding, ComplexHierarchicalTree);
-
 export interface DataInfo {
   [key: string]: string;
 }
@@ -14,21 +13,49 @@ export interface DataInfo {
 @Component({
   selector: 'app-grafico-lotti',
   templateUrl: './grafico-lotti.component.html',
-  styleUrls: ['./grafico-lotti.component.scss']
+  styleUrls: ['./grafico-lotti.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class GraficoLottiComponent implements OnInit {
 
   @ViewChild('diagram')
   public diagram?: DiagramComponent;
   private graphData!: GraphNode[];
-  private graphDataJson!: string;
+  public items?: DataManager;
+  public dataSourceSettings?: DataSourceModel;
+  public codiceLotto = ''
+  public constraints!: DiagramConstraints.Default | DiagramConstraints.Tooltip
 
-  constructor(protected graphService: GraphLottiService, protected cd: ChangeDetectorRef) { }
+  requiredControl = new FormControl('', [Validators.required]);
+
+  constructor(protected graphService: GraphLottiService, protected bkndService: LottiBkndService, protected cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.graphData = this.graphService.translateDataToGraph(graphData);
-    this.graphDataJson = this.graphService.makeJson(this.graphData);
-    console.log(this.graphDataJson)
+    this.items = new DataManager(this.graphData as any);
+    this.dataSourceSettings = {
+      id: 'id',
+      parentId: 'parent',
+      dataSource: this.items,
+      //binds the external data with node
+      doBinding: (nodeModel: NodeModel, data: DataInfo, diagram: Diagram) => {
+        /* tslint:disable:no-string-literal */
+        nodeModel.style = { fill: "#e7704c", strokeWidth: 1, strokeColor: "#c15433" };
+        nodeModel.annotations = [{
+          content: data['id']
+          , offset: { x: 0.5, y: 0.5 }, verticalAlignment :'Center',horizontalAlignment :'Center',
+          style:{
+            textWrapping:'Wrap',
+          }
+
+        }];
+      },
+
+    }
+  }
+
+  searchLotto() {
+    this.bkndService.getJsonFromLotto(this.codiceLotto)
   }
 
   public nodeDefaults(obj: NodeModel): NodeModel {
@@ -38,20 +65,8 @@ export class GraficoLottiComponent implements OnInit {
     return obj;
   };
 
-  public data: Object = {
-    id: 'id',
-    parentId: 'parent',
-    dataSource: new DataManager((this.graphDataJson as any)),
-      //binds the external data with node
-      doBinding: (nodeModel: NodeModel, data: DataInfo, diagram: Diagram) => {
-        /* tslint:disable:no-string-literal */
-        nodeModel.style = { fill: "#e7704c", strokeWidth: 1, strokeColor: "#c15433" };
-      }
-  };
-
   public created(): void {
     (this.diagram as DiagramComponent).fitToPage();
-    console.log(this.data)
   };
 
   public connDefaults(connector: ConnectorModel): void {

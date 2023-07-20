@@ -1,3 +1,17 @@
+<div class="container">
+  <mat-form-field class="form-field1">
+    <mat-label>Codice Lotto</mat-label>
+    <input matInput [formControl]="requiredControl" [(ngModel)]="codiceLotto" />
+    <mat-error>Codice non valido</mat-error>
+  </mat-form-field>
+</div>
+
+<div class="container">
+  <button mat-raised-button color="primary" (click)="searchLotto()">
+    Cerca Lotto
+  </button>
+</div>
+
 <ejs-diagram
   #diagram
   id="diagram"
@@ -7,7 +21,7 @@
   [getNodeDefaults]="nodeDefaults"
   [tool]="tool"
   [layout]="layout"
-  [dataSourceSettings]="data"
+  [dataSourceSettings]="dataSourceSettings"
   [snapSettings]="snapSettings"
   (created)="created()"
 ></ejs-diagram>
