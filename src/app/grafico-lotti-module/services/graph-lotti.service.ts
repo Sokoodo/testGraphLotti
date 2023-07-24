@@ -5,7 +5,6 @@ import { INodesDefinition, GraphNode, INodesInfo, ArchInfo } from '../interfaces
   providedIn: 'root'
 })
 export class GraphLottiService {
-
   constructor() { }
 
   public translateDataToGraph(nodeDefinitionBackend: INodesDefinition): GraphNode[] {
@@ -54,6 +53,13 @@ export class GraphLottiService {
       return false
     }
     return true;
+  }
+
+  public findArch(graphData: INodesDefinition, sourceId: string, destinationId: string): ArchInfo | undefined {
+    const arcoFound = graphData.archi.find(a => a.destinazione == destinationId && a.origine == sourceId);
+    console.log(arcoFound)
+    if (arcoFound) return arcoFound;
+    else return undefined
   }
 
 }
